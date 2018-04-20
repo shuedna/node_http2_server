@@ -1,0 +1,60 @@
+{
+	"config": {
+		"ports": {
+			"http": 80,
+			"https": 443
+		},
+		"ssl": {
+			"cert": "/etc/letsencrypt/live/shueit.net/fullchain.pem",
+			"key": "/etc/letsencrypt/live/shueit.net/privkey.pem"
+		},
+		"cache": true,
+		"mail": {
+			"transporter": {
+				"host": "smtp.ethereal.email",
+				"port": 587,
+				"secure": false,
+				"auth": {
+					"user": "qqcam5uaoa74cdoy@ethereal.email",
+					"pass": "Aq3YeR7utDeS9WN1Mf"
+				}
+			},
+			"testEmail": false
+		}		
+	},
+	"site": {
+		"path": "public", 
+		"pages": {
+			"/": {
+				"template" : "base",
+				"content" : {
+					"type": "code",
+					"data": {
+						"b1":"Riley is my dog"
+					}
+				},
+				"push_files": []
+			},
+                       "/file": {
+                                "template" : "t1",
+                                "content" : {
+                                        "type": "file",
+                                        "data": "public/file.json"
+                                },
+                                "push_files": []
+                        }
+
+		},
+		"templates" : {
+			"base" : {
+				"type":"code",
+				"template": "<div><h1>${data.b1}</h1></div>"
+			},
+			"t1" : {
+                                "type":"file",
+                                "template": "templates/t1"
+                        }
+
+		}
+	}
+}
