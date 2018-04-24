@@ -2,6 +2,7 @@
 const http2 = require('http2');
 const http = require('http');
 const fs = require('fs');
+//const os = require('os');
 const mime = require('mime');
 const nodemailer = require('nodemailer');
 
@@ -9,6 +10,7 @@ const config_path = "server-config.json";
 var app = {};
 var cache = {};
 var mail = {};
+var ip = "test";
 
 (//Init - load config file
 	function () {
@@ -60,9 +62,11 @@ function initSecureServer () {
 
 		stream.on('end', function () {
 			if (headers[":method"] == "POST") {
+				//Handle posted Data
 				//console.log(postData)
 				respond("text",200,postData)		
 			}else if (headers[":path"].includes(".") == true) {
+				//Serve static files
 				//console.log(`File = ${headers[":path"]}`)
 				getFile(app.site.path + headers[":path"],function (err, data) {
 					if (err) {
@@ -72,11 +76,17 @@ function initSecureServer () {
 					} 
 				})			
 			}else if (app.site.pages[headers[":path"]]){
+				//Serve pages from template & json file
 				//console.log("page")
 				var data = ""
 				var template = ""
 				if (app.site.pages[headers[":path"]].content.type == "code") {
 					data = app.site.pages[headers[":path"]].content.data
+					//test for page script and eval
+					if (app.site.pages[headers[":path"]].content.script) {
+						//console.log("script")
+						eval(app.site.pages[headers[":path"]].content.script)
+					}
 					if (app.site.pages[headers[":path"]].template != false) {
 						getTemplate()
 					}else{
@@ -88,6 +98,11 @@ function initSecureServer () {
                                         		send404()
                                 		}else{
 							data = filedata
+							if (app.site.pages[headers[":path"]].content.script.endsWith(".js")) {
+                                                		//console.log("script")
+                                                		app.site.pages[headers[":path"]].content.funct = require(`./${app.site.pages[headers[":path"]].content.script}`)
+								app.site.pages[headers[":path"]].content.funct.run(data)
+                                        		}
                                 			if (app.site.pages[headers[":path"]].template != false) {
 								data = JSON.parse(data)
                                         			getTemplate()

@@ -1,1 +1,54 @@
-<div><h1>${data.b1}</h1></div>
+<!DOCTYPE html> <html>
+  <head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+	<link href="css/normalize.css" rel="stylesheet">
+	<link href="css/milligram.min.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+	<title> ${data.title}</title>
+  </head>
+  <body>
+	<div class="container header">
+	  	<div class="row header">
+			<div class="column">
+    			<h1 class="margin title"> ${data.title}
+				<a class="icon" id="menubtn" href="javascript:void(0)"><img src="images\menu-white.png"></a>
+				</h1>
+			</div>
+	  	</div>
+		<!--<div class="row header mobilehide" id="menuBody">
+	   		<a class="column button">Home</a>
+			<a class="column button">My blog</a>
+			<a class="column button">Portfolio</a>
+			<a class="column button">About</a>
+	 	</div>-->
+	</div>
+	<div class="container body">
+		<div class="row">
+			<div class="column section">
+				<h3>About</h3>
+				<p>${data.section1}
+			</div>
+		</div>
+		<div class="row marginBottom">
+			<div class="column section">
+				<h3>Server Info</h3>
+				${data.ipAddresses}
+			</div>
+			<div class="column section">
+          		${data.section3}
+			</div>
+		</div>
+	</div>
+	<div class ="container footer">
+		<div class="row center">
+			${data.footer}
+			<!--<div class="column addthis_inline_share_toolbox center margin"></div>-->
+		</div>
+	</div>
+	<!--<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-58ad888c7c4482ac"></script>-->
+	<script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="js/scripts.js"></script>
+  </body>
+</html>

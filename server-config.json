@@ -26,11 +26,16 @@
 		"path": "public", 
 		"pages": {
 			"/": {
-				"template" : "base",
+				"template" : "t1",
 				"content" : {
 					"type": "code",
+					"script":"const os = require('os');console.log('eval script');var ints = os.networkInterfaces();data.ipAddresses = '';for (var int in ints) {if (int != 'lo'){for (var i = 0; i < ints[int].length; i++) {data.ipAddresses += `<p> IP address : ${ints[int][i].address}</p>`;}}}",
 					"data": {
-						"b1":"Riley is my dog"
+						"title":"Node HTTP2 Server",
+						"section1":"This project is a basic http2 web server written in node.js. It can server static files and pages built from template file and json data. Pages can also define files to be pushed to client via http2 push feature. The server can also be modified with custom logic to generate pages.",
+						"section2":"",
+						"section3":"wtf idk",
+						"footer": "<div class='column section'><h4 class='center'>powered By:</h4><image class='quarter' src='images/logo.svg'></div>"
 					}
 				},
 				"push_files": []
@@ -39,6 +44,7 @@
                                 "template" : "t1",
                                 "content" : {
                                         "type": "file",
+					"script":"file.js",
                                         "data": "public/file.json"
                                 },
                                 "push_files": []
@@ -54,7 +60,6 @@
                                 "type":"file",
                                 "template": "templates/t1"
                         }
-
 		}
 	}
 }
