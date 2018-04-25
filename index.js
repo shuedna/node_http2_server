@@ -10,6 +10,7 @@ const config_path = "server-config.json";
 var app = {};
 var cache = {};
 var mail = {};
+var scripts = {};
 var ip = "test";
 
 (//Init - load config file
@@ -54,96 +55,94 @@ function initSecureServer () {
 	app.server.on('socketError', (err) => console.error(err));
 
 	app.server.on('stream', (stream, headers) => {
+		//console.log(headers)
 		var postData='';
-		stream.on('data',function (chunk) {
+		stream.once('data',function (chunk) {
 			postData=(postData += chunk)
 			//console.log('a chunk')
 		})
 
 		stream.on('end', function () {
+			//console.log(headers[":path"])
+			if (headers[":path"] == "/") {
+				headers[":path"] = app.sitePaths["/"]
+				//console.log(headers[":path"])
+			}
 			if (headers[":method"] == "POST") {
 				//Handle posted Data
 				//console.log(postData)
-				respond("text",200,postData)		
+				postProcessing(stream,headers,postData)		
 			}else if (headers[":path"].includes(".") == true) {
 				//Serve static files
-				//console.log(`File = ${headers[":path"]}`)
-				getFile(app.site.path + headers[":path"],function (err, data) {
-					if (err) {
-						send404()
-					}else{
-						respond(mime.getType(headers[":path"]),200,data)
-					} 
-				})			
-			}else if (app.site.pages[headers[":path"]]){
-				//Serve pages from template & json file
-				//console.log("page")
-				var data = ""
-				var template = ""
-				if (app.site.pages[headers[":path"]].content.type == "code") {
-					data = app.site.pages[headers[":path"]].content.data
-					//test for page script and eval
-					if (app.site.pages[headers[":path"]].content.script) {
-						//console.log("script")
-						eval(app.site.pages[headers[":path"]].content.script)
-					}
-					if (app.site.pages[headers[":path"]].template != false) {
-						getTemplate()
-					}else{
-						respond("html",200,data)
-					}	
-				}else if (app.site.pages[headers[":path"]].content.type == "file") {
-					getFile(app.site.pages[headers[":path"]].content.data,function (err, filedata) {
-                                		if (err) {
-                                        		send404()
-                                		}else{
-							data = filedata
-							if (app.site.pages[headers[":path"]].content.script.endsWith(".js")) {
-                                                		//console.log("script")
-                                                		app.site.pages[headers[":path"]].content.funct = require(`./${app.site.pages[headers[":path"]].content.script}`)
-								app.site.pages[headers[":path"]].content.funct.run(data)
-                                        		}
-                                			if (app.site.pages[headers[":path"]].template != false) {
-								data = JSON.parse(data)
-                                        			getTemplate()
-                                			}else{
-								respond("html",200,data)	
-							}
-                                		}
-                        		})	
-				}else{
-					console.log(`unknown type for ${headers[":path"]}!!`)	
-				}
-
-				function getTemplate () {
-					//console.log(app.site.pages[headers[":path"]].template)
-					if (app.site.templates[app.site.pages[headers[":path"]].template].type == "code") {
-						template = app.site.templates[app.site.pages[headers[":path"]].template].template
-						respond ("html", 200, eval('`' + template + '`'))
-					}else if (app.site.templates[app.site.pages[headers[":path"]].template].type == "file") {
-						getFile(app.site.templates[app.site.pages[headers[":path"]].template].template, function (err,templatedata) {
-							if (err) {
-								send404()
-							}else{
-								template = templatedata
-                                        			respond ("html", 200, eval('`' + template + '`'))
-							}
-						})
-					}else{
-						console.log("unknown template type")
-					}
-				}
-			
+				//console.log('to Serve static')
+				serveStatic(stream,headers)			
 			}else{
-				//console.log("idk")
-				send404()
+				//attempt to handle as a json page 
+				getPageData(stream,headers)
 			}
 		})
+	})
 
-		function send404 () {
+		function send404 (stream,headers) {
 			//send 404 - file/resource not found. 
-			respond("text",404,"file/resource not found")
+			respond(stream,"text",404,"file/resource not found")
 		}
+
+		function serveStatic (stream,headers) {
+                	getFile(app.sitePaths.public + headers[":path"],function (err, data) {
+                        	if (err) {
+                                	send404(stream,headers)
+                                }else{
+					//console.log(`serving ${headers[":path"]}`) 
+                                        respond(stream,mime.getType(headers[":path"]),200,data)
+                                }
+                       	})
+		}
+
+		function getPageData (stream,headers) {
+			 getFile(app.sitePaths.pages + "/" + headers[":path"] + ".json",function (err, fileData) {
+                                if (err) {
+					//console.log(`Err at get page data ${err}`)
+                                        send404(stream,headers)
+                                }else{
+                                	var page = JSON.parse(fileData)
+					if (page.content.script) {
+						pageScript(stream,headers,page)
+					}else if (page.template) {
+						getTemplate(stream,headers,page)	
+					}else{
+						respond(stream,mime.getType(".json"),200,page)
+					}
+                                }
+                        })
+		}
+
+		function pageScript (stream,headers,page) {
+			if ( scripts[page.content.script] ) {
+		        	scripts[page.content.script].run(stream,headers,page)
+			}else{
+				loadModule(page.content.script, function () {
+					scripts[page.content.script].on('done',function (stream,headers,page) {
+					        //console.log(page)
+                				getTemplate(stream,headers,page)
+        				})
+					scripts[page.content.script].run(stream,headers,page)
+				})
+			}	
+		}
+
+                function getTemplate (stream,headers,page) {
+                	getFile(app.sitePaths.templates + "/" + [page.template], function (err,templateData) {
+                            	if (err) {
+                                	send404(stream,headers)
+                                }else{
+                                	var template = templateData
+					var data = page.content.data
+                                        respond (stream,"html", 200, eval('`' + template + '`'))
+                                }
+                        })
+                }
+
 
 		function getFile (file, callback) {
 			if (app.config.cache) {
@@ -166,11 +165,11 @@ function initSecureServer () {
 			}
 		}
 
-		function postProcessing (data) {
-
+		function postProcessing (stream,headers,postData) {
+			respond(stream,"text",200,postData)
 		}
 
-		function respond (type,status,content) {
+		function respond (stream,type,status,content) {
 			stream.respond({
 				'content-type': type,
     				':status': status
@@ -178,7 +177,7 @@ function initSecureServer () {
   			stream.end(content);
 		}
 		
-	});
+	//});
 
 	app.server.listen(app.config.ports.https);
 	console.log(`Done, Server listening on ${app.config.ports.https}`)
@@ -209,4 +208,14 @@ function loadMailer() {
 		})
 	}
 	console.log('Done')
+}
+
+function loadModule (path,callback) {
+	var file = "./" + app.sitePaths.scripts + "/" + path;
+       	scripts[path] = require(file);
+        /*scripts[path].on('done',function (stream,headers,page) {
+		console.log(page)
+                getTemplate(stream,headers,page)
+        })*/
+	callback()
 }
