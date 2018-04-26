@@ -1,8 +1,0 @@
-{
-	"template" : "t1",
-	"content" : {
-		"script":"file.js",
-		"data": "public/file.json"
-	},
-	"push_files": []
-}

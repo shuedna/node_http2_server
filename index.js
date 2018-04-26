@@ -111,7 +111,7 @@ function initSecureServer () {
 					}else if (page.template) {
 						getTemplate(stream,headers,page)	
 					}else{
-						respond(stream,mime.getType(".json"),200,page)
+						respond(stream,mime.getType(".json"),200,JSON.stringify(page))
 					}
                                 }
                         })
@@ -124,7 +124,13 @@ function initSecureServer () {
 				loadModule(page.content.script, function () {
 					scripts[page.content.script].on('done',function (stream,headers,page) {
 					        //console.log(page)
-                				getTemplate(stream,headers,page)
+						if (page.template) {
+                					getTemplate(stream,headers,page)
+						}else{
+							//console.log('no template defined')
+							//console.log(page)
+							respond(stream,mime.getType(".json"),200,JSON.stringify(page))
+						}	
         				})
 					scripts[page.content.script].run(stream,headers,page)
 				})
@@ -138,7 +144,7 @@ function initSecureServer () {
                                 }else{
                                 	var template = templateData
 					var data = page.content.data
-                                        respond (stream,"html", 200, eval('`' + template + '`'))
+                                        respond(stream,"html", 200, eval('`' + template + '`'))
                                 }
                         })
                 }
@@ -213,9 +219,5 @@ function loadMailer() {
 function loadModule (path,callback) {
 	var file = "./" + app.sitePaths.scripts + "/" + path;
        	scripts[path] = require(file);
-        /*scripts[path].on('done',function (stream,headers,page) {
-		console.log(page)
-                getTemplate(stream,headers,page)
-        })*/
 	callback()
 }

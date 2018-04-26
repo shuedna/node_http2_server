@@ -34,6 +34,9 @@
 		<div class="row marginBottom">
 			<div class="column section">
 				<h3>Server Info</h3>
+				${data.hostname}
+				${data.uptime}
+				${data.memory}
 				${data.ipAddresses}
 			</div>
 			<div class="column section">
@@ -48,7 +51,7 @@
 		</div>
 	</div>
 	<!--<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-58ad888c7c4482ac"></script>-->
-	<script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
 	<script type="text/javascript" src="js/scripts.js"></script>
   </body>
 </html>
