@@ -70,7 +70,7 @@ function initSecureServer () {
 			}
 			if (headers[":method"] == "POST") {
 				//Handle posted Data
-				//console.log(postData)
+				console.log(postData)
 				postProcessing(stream,headers,postData)		
 			}else if (headers[":path"].includes(".") == true) {
 				//Serve static files
@@ -187,12 +187,23 @@ function initSecureServer () {
 
 	app.server.listen(app.config.ports.https);
 	console.log(`Done, Server listening on ${app.config.ports.https}`)
+	initRedirectServer()
 }
 
 function initRedirectServer () {
-	//console.log ("loading Http Redirect Server")
-	//finish !!!
+	console.log ("loading Http Redirect Server")
+	app.httpServer = http.createServer(redirect);
+	app.httpServer.listen(app.config.ports.http)
+	console.log(`Done, redirecting port ${app.config.ports.http} to ${app.config.ports.https}`)
+}
 
+function redirect  (req, res) {
+	//consoleLog( 'Http request for  ' +  headers[':path'])
+	//consoleLog(headers)
+	res.writeHead(301,
+		{'Location': `https://${req.headers.host}${req.url}`}
+	)
+	res.end()
 }
 
 function loadMailer() {
