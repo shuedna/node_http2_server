@@ -106,12 +106,46 @@ function initSecureServer () {
                                         send404(stream,headers)
                                 }else{
                                 	var page = JSON.parse(fileData)
-					if (page.content.script) {
-						pageScript(stream,headers,page)
-					}else if (page.template) {
-						getTemplate(stream,headers,page)	
+					var files = [];
+					var loaded = [];
+					for (var part in page.content.data) {
+						//console.log(page.content.data[part])
+						if (page.content.data[part].endsWith(".html")) {
+							files.push(part)
+						}
+					}
+					
+					if (files.length == loaded.length) {
+						//console.log (files.length +"="+ loaded.length)
+						nextAction()	
 					}else{
-						respond(stream,mime.getType(".json"),200,JSON.stringify(page))
+						for ( var i = 0; i < files.length; i++) {
+							fileGetter(app.sitePaths.pages + "/" + page.content.data[files[i]],i)	
+						}
+
+						function fileGetter (file, i ) {
+							getFile(file,function (err, fileData) {
+                                                                if (err) {
+                                                                        console.log(err)
+                                                                }else{
+                                                                        page.content.data[files[i]] = fileData.toString('utf8')
+                                                                        loaded.push(files[i])
+                                                                        if (files.length == loaded.length) {
+                                                                                nextAction()
+                                                                        }
+                                                                }
+                                                        })
+
+						}
+					}
+					function nextAction () {
+						if (page.content.script) {
+							pageScript(stream,headers,page)
+						}else if (page.template) {
+							getTemplate(stream,headers,page)	
+						}else{
+							respond(stream,mime.getType(".json"),200,JSON.stringify(page))
+						}
 					}
                                 }
                         })
