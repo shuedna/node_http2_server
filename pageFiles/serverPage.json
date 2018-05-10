@@ -1,0 +1,14 @@
+{
+	"template" : "t1",
+	"content" : {
+		"script":"script.js",
+		"data": {
+			"title":"Node HTTP2 Server",
+			"section1":"server.md",
+			"section2":"",
+			"section3":"messageMe.html",
+			"footer": "<div class='column section'><h4 class='center'>powered By:</h4><image class='quarter' src='images/logo.svg'></div>"
+		}
+	},
+	"push_files": []
+}

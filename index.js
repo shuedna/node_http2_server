@@ -1,3 +1,4 @@
+#!./node
 "use strict";
 const http2 = require('http2');
 const http = require('http');
@@ -5,6 +6,7 @@ const fs = require('fs');
 //const os = require('os');
 const mime = require('mime');
 const nodemailer = require('nodemailer');
+const marked = require('marked');
 
 const config_path = "server-config.json";
 var app = {};
@@ -70,15 +72,19 @@ function initSecureServer () {
 			}
 			if (headers[":method"] == "POST") {
 				//Handle posted Data
-				console.log(postData)
-				postProcessing(stream,headers,postData)		
+				//console.log(postData)
+				if (headers[":path"] == "/sendEmail") {
+					sendEmail(stream,headers,JSON.parse(postData))
+				}else{
+					getPageData(stream,headers, postData)
+				}		
 			}else if (headers[":path"].includes(".") == true) {
 				//Serve static files
 				//console.log('to Serve static')
 				serveStatic(stream,headers)			
 			}else{
 				//attempt to handle as a json page 
-				getPageData(stream,headers)
+				getPageData(stream,headers,null)
 			}
 		})
 	})
@@ -99,18 +105,21 @@ function initSecureServer () {
                        	})
 		}
 
-		function getPageData (stream,headers) {
+		function getPageData (stream,headers,postData) {
 			 getFile(app.sitePaths.pages + "/" + headers[":path"] + ".json",function (err, fileData) {
                                 if (err) {
 					//console.log(`Err at get page data ${err}`)
                                         send404(stream,headers)
                                 }else{
                                 	var page = JSON.parse(fileData)
+					if (headers[":method"] == "POST") {
+						page.postData = postData
+					}
 					var files = [];
 					var loaded = [];
 					for (var part in page.content.data) {
 						//console.log(page.content.data[part])
-						if (page.content.data[part].endsWith(".html")) {
+						if (page.content.data[part].endsWith(".html") || page.content.data[part].endsWith(".md") || page.content.data[part].endsWith(".markdown")) {
 							files.push(part)
 						}
 					}
@@ -127,13 +136,24 @@ function initSecureServer () {
 							getFile(file,function (err, fileData) {
                                                                 if (err) {
                                                                         console.log(err)
+									page.content.data[files[i]] = "<p>Content not found</p>"
+									testLoaded()
                                                                 }else{
-                                                                        page.content.data[files[i]] = fileData.toString('utf8')
-                                                                        loaded.push(files[i])
-                                                                        if (files.length == loaded.length) {
-                                                                                nextAction()
-                                                                        }
-                                                                }
+									if (file.endsWith(".md") || file.endsWith(".markdown")) {
+										page.content.data[files[i]] = marked(fileData.toString('utf8'))
+										testLoaded()	
+									}else{
+                                                                        	page.content.data[files[i]] = fileData.toString('utf8')
+										testLoaded()
+									}
+								}
+
+								function testLoaded () {
+                                                               		loaded.push(files[i])
+                                                                	if (files.length == loaded.length) {
+                                                                		nextAction()
+                                                                	}
+								}
                                                         })
 
 						}
@@ -178,11 +198,22 @@ function initSecureServer () {
                                 }else{
                                 	var template = templateData
 					var data = page.content.data
-                                        respond(stream,"html", 200, eval('`' + template + '`'))
+                                        respond(stream,mime.getType(".html"), 200, eval('`' + template + '`'))
                                 }
                         })
                 }
 
+		function sendEmail (stream,headers,email) {
+			console.log(email)
+			mail.transporter.sendMail (email, function (err,info) {
+                        	if (err) {
+					respond(stream,mime.getType(".json"),200,JSON.stringify(err))
+                        	}else{
+                        		//console.log ('%O',info)
+					respond(stream,mime.getType(".json"),200,'{"sent": "true"}')
+				}
+                	})
+		}
 
 		function getFile (file, callback) {
 			if (app.config.cache) {
@@ -203,10 +234,6 @@ function initSecureServer () {
 					callback(err,data)
 				})
 			}
-		}
-
-		function postProcessing (stream,headers,postData) {
-			respond(stream,"text",200,postData)
 		}
 
 		function respond (stream,type,status,content) {

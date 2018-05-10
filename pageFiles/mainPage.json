@@ -1,14 +1,13 @@
 {
-	"template" : "t1",
-	"content" : {
-		"script":"script.js",
-		"data": {
-			"title":"Node HTTP2 Server",
-			"section1":"This project is a basic http2 web server written in node.js. It can server static files and pages built from template file and json data. Pages can also define files to be pushed to client via http2 push feature. The server can also be modified with custom logic to generate pages.",
-			"section2":"",
-			"section3":"<form><div><label for='name'>Name:</label><input type='text' id='name' name='user_name'></div><div><label for='mail'>E-mail:</label><input type='email' id='mail' name='user_mail'></div><div><label for='msg'>Message:</label><textarea id='msg' name='user_message'></textarea></div><div class='button'><button type='submit'>Send your message</button></form></div>",
-			"footer": "<div class='column section'><h4 class='center'>powered By:</h4><image class='quarter' src='images/logo.svg'></div>"
+	"template":"template",	
+	"content":{
+		"data":{
+			"main":"${data.section1}${section2}${section3}${section4}",
+			"title":"Shue-IT",
+			"section1":"section1.html",
+			"section2":"section2.html",
+			"section3":"messageMe.html",
+			"section4":"certIcons.html"
 		}
-	},
-	"push_files": []
+	}
 }
