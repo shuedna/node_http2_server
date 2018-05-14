@@ -45,7 +45,7 @@ Serving static files and pages are great but their afe few sites left that are t
 Ok now pages are requests for non-static files. Files requests with out a ".filetype" will look into the directory defined in config.pages for a JSON doc that defines how to handle the page request. If found the server will load the file and parse it and set it at page variable. It will then look at all the vars in the content.data object if they are a string ending with .html, .md or .markdown it will load that particular file and set the var to the resulting string. Once all the files listed in data are loaded then it will check to see if the content.script has a file set. If it does it will load it as a module and exec the "run" function passing the page object to the script. (we'll look at the script part in a next.). After the script is completed or if no script is defined the server will look to see if a template is defined. It will load the template and parse it replaceing vars in the template with ones defined in page.content.data. . If no template is defined then the data object will be sent as the reply in JSON format. 
 
 	{
-        "template" : "t1",
+        "template" : ["template1","template2"],
         "content" : {
                 "script":"script.js",
                 "data": {
@@ -75,18 +75,25 @@ Page scripts are defined in page file under content.script var and is loaded as 
 
 A few basic are required in the script we need an exported function and an event emiter and. The exported function is the "run" function which the main app will execute this is done with module.exports.run = run. The event emitter is created by requiring the "events" package and using module.exports to export a new event to the main app. The main app will listen for the 'done' event to execute the next action. The done event is fired by "module.exports.emit('done',stream,headers,data)".
 
-#### Templates 
-Ahh templates 
+#### Templates
+The templates use javascript template literals or template strings. The templates are just standard html file with placeholders where data needs to be inserted. Place holders are dollar sign followed by brackets containg the var or expression to be inserted, example , ${var}. Because the page object is passed the template function the data object can be accessed or anything in the page object can be.In js back ticks are required to use template literals but that is not required, the server takes care of that. Example of a template 
+
+	<html>
+		<head>
+			<title>${page.content.title}</title>
+		</head>
+		<body>
+			<h1>${page.content.section}</h1>
+		</body>
+	</html>
 
 # Fix
-
-test email needs to be able have address to send to put in config 
-
-
+- test email needs to be able have address to send to put in config
+- page cannot be diplayed if there is error in the template file. like var does not exist or syntax error. 
+# Todo
+- need a better name for project. 
+- add http2 push for required files
 # Credits
-
-![Nodemailer logo](https://nodemailer.com/nm_logo_200x136.png) Nodemailer  https://nodemailer.com/about/
-
+![Nodemailer logo](https://nodemailer.com/nm_logo_200x136.png) [Nodemailer](https://nodemailer.com/about/)
 ![marked logo](https://marked.js.org/img/logo-black.svg)
-
-node-mime  https://github.com/broofa/node-mime
+[node-mime](https://github.com/broofa/node-mime)

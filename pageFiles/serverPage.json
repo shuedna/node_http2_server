@@ -1,5 +1,5 @@
 {
-	"template" : "t1",
+	"template" : ["serverPageTemplate","serverBaseTemplate"],
 	"content" : {
 		"script":"script.js",
 		"data": {

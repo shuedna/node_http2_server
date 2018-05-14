@@ -192,22 +192,40 @@ function initSecureServer () {
 		}
 
                 function getTemplate (stream,headers,page) {
-                	getFile(app.sitePaths.templates + "/" + [page.template], function (err,templateData) {
-                            	if (err) {
-                                	send404(stream,headers)
-                                }else{
-                                	var template = templateData
-					var data = page.content.data
-                                        respond(stream,mime.getType(".html"), 200, eval('`' + template + '`'))
-                                }
-                        })
+                	for (var i = 0; page.template.length > i; i++) {
+				getTemplate(i)
+			}
+
+			function getTemplate (i) {	
+				getFile(app.sitePaths.templates + "/" + [page.template[i]], function (err,templateData) {
+                            		if (err) {
+						if (i == (page.template.length -1)) {
+                                			send404(stream,headers)
+						}else{
+							page.template[`sub${i}`] = "template not found";
+						} 
+                                	}else{
+                                		var template = templateData
+						var data = page.content.data
+						if (i == (page.template.length -1)) {
+                                        		respond(stream,mime.getType(".html"), 200, eval('`' + template + '`'))
+						}else{
+							page.template[`sub${i}`] = eval('`' + template + '`')
+							//console.log(`O%`,page)
+						}
+					}
+                                })
+                        }
                 }
 
 		function sendEmail (stream,headers,email) {
 			console.log(email)
 			mail.transporter.sendMail (email, function (err,info) {
                         	if (err) {
-					respond(stream,mime.getType(".json"),200,JSON.stringify(err))
+					var resp = {};
+					resp.sent = false
+					resp.err = err
+					respond(stream,mime.getType(".json"),200,JSON.stringify(resp))
                         	}else{
                         		//console.log ('%O',info)
 					respond(stream,mime.getType(".json"),200,'{"sent": "true"}')
@@ -280,9 +298,10 @@ function loadMailer() {
 		}
 		mail.transporter.sendMail (testEmail, function (err,info) {
 			if (err) {
-
+				console.log ('%O',err)
+			}else{
+				console.log ('%O',info)
 			}
-			console.log ('%O',info)
 		})
 	}
 	console.log('Done')

@@ -7,7 +7,8 @@ function run (stream,headers,data) {
 	var ints = os.networkInterfaces();
 	data.content.data.hostname = "<p>"+os.hostname()+"</p>";
 	data.content.data.memory = "<p>"+ Math.floor(os.freemem()/ 1048576)  +"MB Ram Free / " + Math.floor(os.totalmem()/1048576) + "MB Total</p>"
-	data.content.data.uptime = "<p>Server Up time " + uptimeCal()+"</p>" 
+	data.content.data.uptime = "<p>Server Up time " + uptimeCal()+"</p>"
+	data.content.data.appMemUsage = process.memoryUsage().rss 
 	data.content.data.ipAddresses = '';
 	for (var int in ints) {
 		if (int != 'lo') {
