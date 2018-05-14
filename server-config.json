@@ -23,7 +23,7 @@
 		}		
 	},
 	"sitePaths": {
-		"/": "mainPage",
+		"/": "serverPage",
 		"public": "public", 
 		"pages": "pageFiles",
 		"scripts": "pageFiles",
