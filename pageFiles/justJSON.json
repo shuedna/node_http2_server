@@ -1,6 +1,4 @@
 {
-	"content" : {
-		"script":"script2.js"
-	},
+	"script":"script2.js",
 	"push_files": []
 }

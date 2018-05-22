@@ -1,5 +1,7 @@
 {
-	"template":"template",	
+	"template":{
+		"main": "template"
+	},	
 	"content":{
 		"data":{
 			"main":"${data.section1}${section2}${section3}${section4}",

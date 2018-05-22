@@ -3,21 +3,23 @@ const eventEmitter = require('events');
 
 module.exports = new eventEmitter();
 
-function run (stream,headers,data) {
+function run (req,res,page,app) {
 	var ints = os.networkInterfaces();
-	data.content.data.hostname = "<p>"+os.hostname()+"</p>";
-	data.content.data.memory = "<p>"+ Math.floor(os.freemem()/ 1048576)  +"MB Ram Free / " + Math.floor(os.totalmem()/1048576) + "MB Total</p>"
-	data.content.data.uptime = "<p>Server Up time " + uptimeCal()+"</p>"
-	data.content.data.appMemUsage = process.memoryUsage().rss 
-	data.content.data.ipAddresses = '';
+	page.data.hostname = "<p>"+os.hostname()+"</p>";
+	page.data.memory = "<p>"+ Math.floor(os.freemem()/ 1048576)  +"MB Ram Free / " + Math.floor(os.totalmem()/1048576) + "MB Total</p>"
+	page.data.uptime = "<p>Server Up time " + uptimeCal()+"</p>"
+	page.data.appMemUsage = process.memoryUsage().rss 
+	page.data.ipAddresses = '';
 	for (var int in ints) {
 		if (int != 'lo') {
 			for (var i = 0; i < ints[int].length; i++) {
-				data.content.data.ipAddresses += `<p> IP address : ${ints[int][i].address}</p>`;
+				page.data.ipAddresses += `<p> IP address : ${ints[int][i].address}</p>`;
 			}
 		}
 	}
-	module.exports.emit('done',stream,headers,data);
+	console.log("test script")
+	app.test = "test" 
+	module.exports.emit('done',req,res,page);
 }
 
 function uptimeCal () {

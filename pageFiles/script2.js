@@ -3,13 +3,14 @@ const eventEmitter = require('events');
 
 module.exports = new eventEmitter();
 
-function run (stream,headers,data) {
+function run (req,res,page,app) {
 	var ints = os.networkInterfaces();
-	data.content.data = {};
-	data.content.data.hostname = os.hostname();
-	data.content.data.memoryfree = os.freemem();
-	data.content.data.uptime = "uptimeCal()"
-	module.exports.emit('done',stream,headers,data);
+	page.data = {};
+	page.data.hostname = os.hostname();
+	page.data.memoryfree = os.freemem();
+	page.data.uptime =uptimeCal()
+	console.log("script2")
+	module.exports.emit('done',req,res,page);
 }
 
 function uptimeCal () {

@@ -1,7 +1,7 @@
 {
   "name": "webdev",
-  "version": "1.0.2",
-  "description": "http/2 server ",
+  "version": "1.0.5",
+  "description": "node_http2_server ",
   "main": "index.js",
   "dependencies": {
     "mime": "",

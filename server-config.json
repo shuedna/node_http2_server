@@ -23,10 +23,12 @@
 		}		
 	},
 	"sitePaths": {
-		"/": "serverPage",
-		"public": "public", 
-		"pages": "pageFiles",
-		"scripts": "pageFiles",
-		"templates": "templates"
+		"*" : {
+			"/": "serverPage",
+			"public": "public", 
+			"pages": "pageFiles",
+			"scripts": "pageFiles",
+			"templates": "templates"
+		}
 	}
 }

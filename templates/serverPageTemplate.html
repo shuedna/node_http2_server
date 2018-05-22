@@ -1,0 +1,19 @@
+<div class="row">
+	<div class="column section">
+		<p>${data.section1}
+	</div>
+</div>
+<div class="row marginBottom">
+	<div class="column section">
+		<h3>Server Info</h3>
+                ${data.hostname}
+                ${data.uptime}
+                ${data.memory}
+                <p>App Memory Usage: ${Math.round(data.appMemUsage / 1024 / 1024 * 100) / 100} MB </p>
+                ${data.ipAddresses}
+        </div>
+        <div class="column section">
+                ${data.section3}
+        </div>
+</div>
+
