@@ -66,13 +66,14 @@ function initSecureServer () {
 				app[req.host] = { scripts : {}, storage : {} }
 			}
 			if (req.url == "/") {
-				req.url = app.sitePaths["/"]
+				req.url = app.sitePaths[req.host]["/"]
+				console.log(`It's a "/" so servering ${req.url}`)
 			}
 			if (req.method == "POST") {
 				//Handle posted Data
 				//console.log(postData)
 				if (req.url == "/sendEmail") {
-					sendEmail(req,res,headers,JSON.parse(postData))
+					sendEmail(req,res,JSON.parse(postData))
 				}else{
 					pageReq(req,res,postData)
 				}		
@@ -114,38 +115,42 @@ function initSecureServer () {
 			}
 		})
 		function getPageFiles(page) {
-			page = JSON.parse(page)
-			//console.log(page)
-			page.postData = postData
-			var files = [],loaded = [],objs = [page.data,page.template]
-			objs.forEach(function (obj) {
-				if (obj) { identifyFiles(obj,[".html",".md",".markdown"],function (file) {files.push(obj[file])}) }
-			})
-			files.sort()
-			//console.log(files)
-			if (files.length == loaded.length) {
-				nextaction()
-			}else{
-				for (var i = 0; i < objs.length;i++) {
-					var obj = objs[i]
-					var folder = i == 0 ? "pages" : "templates"
-					if (obj) {
-						identifyFiles(obj,[".html",".md",".markdown"],function (file) {
-							fileGetter(`${app.sitePaths[req.host][folder]}/${obj[file]}`, obj, file,  function (err) {
-								if (err) {
-									send404(req,res,err)
-								}else{
-									//console.log(loaded)
-									loaded.sort()
-									if (files.toString() == loaded.toString()) {
-										nextAction()
+			//try { 
+				page = JSON.parse(page)
+				//console.log(page)
+				page.postData = postData
+				var files = [],loaded = [],objs = [page.data,page.template]
+				objs.forEach(function (obj) {
+					if (obj) { identifyFiles(obj,[".html",".md",".markdown"],function (file) {files.push(obj[file])}) }
+				})
+				files.sort()
+				//console.log(files)
+				if (files.length == loaded.length) {
+					nextAction()
+				}else{
+					for (var i = 0; i < objs.length;i++) {
+						var obj = objs[i]
+						var folder = i == 0 ? "pages" : "templates"
+						if (obj) {
+							identifyFiles(obj,[".html",".md",".markdown"],function (file) {
+								fileGetter(`${app.sitePaths[req.host][folder]}/${obj[file]}`, obj, file,  function (err) {
+									if (err) {
+										send404(req,res,err)
+									}else{
+										//console.log(loaded)
+										loaded.sort()
+										if (files.toString() == loaded.toString()) {
+											nextAction()
+										}
 									}
-								}
+								})
 							})
-						})
+						}
 					}
 				}
-			}
+			//}catch (err) {
+			//	send404(req,res,err)
+			//}
 			function identifyFiles (obj,cond,callback) {
 	                        for(var file in obj) {
         	                        if ( cond == "*") {
@@ -213,14 +218,18 @@ function initSecureServer () {
 		//console.log(page)
 		var data = page.data
                	for (var s in page.template) {
-			page.template[s]=eval('`' + page.template[s] + '`')
+			try {
+				page.template[s]=eval('`' + page.template[s] + '`')
+			}catch (err) {
+				console.log(err)
+			}
 		}
 		respond(req, res, mime.getType(".html"), 200, page.template.main)
 	}
 
 	function sendEmail (req,res,email) {
 		//console.log(email)
-		mail.transporter.sendMail (email, function (err,info) {
+		app.mail.transporter.sendMail (email, function (err,info) {
                        	if (err) {
 				var resp = {};
 				resp.sent = false
