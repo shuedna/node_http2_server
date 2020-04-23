@@ -1,34 +1,43 @@
 {
 	"config": {
 		"ports": {
-			"http": 8080,
-			"https": 4443
+			"http": 80,
+			"https": 443
 		},
 		"ssl": {
 			"cert": "/etc/letsencrypt/live/shueit.net/fullchain.pem",
 			"key": "/etc/letsencrypt/live/shueit.net/privkey.pem"
 		},
 		"cache": true,
+		"logging": true,
 		"mail": {
 			"transporter": {
-				"host": "smtp.ethereal.email",
-				"port": 587,
-				"secure": false,
-				"auth": {
-					"user": "qqcam5uaoa74cdoy@ethereal.email",
-					"pass": "Aq3YeR7utDeS9WN1Mf"
+                                "host": "mail.dreamscape.com",
+                                "port": 587,
+                                "secure": false,
+                                "ignoreTLS": true,
+                                "auth": {
+                                        "user": "danshue@dreamscape.com",
+                                        "pass": "Joejoe###4"
 				}
 			},
-			"testEmail": false
+			"testEmail": true
 		}		
 	},
 	"sitePaths": {
 		"*" : {
-			"/": "serverPage",
+			"/": "mainPage2",
 			"public": "public", 
 			"pages": "pageFiles",
 			"scripts": "pageFiles",
 			"templates": "templates"
+		},
+		"server.shueit.net" : {
+			"/" : "serverPage",
+			"public" : "public",
+			"pages" : "pageFiles",
+			"scripts" : "pageFiles",
+			"templates" : "templates"
 		}
 	}
 }

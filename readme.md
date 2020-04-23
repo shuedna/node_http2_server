@@ -80,13 +80,16 @@ Page scripts are defined in page file under content.script var and is loaded as 
 objec and page object loaded from page file. The app object is the object the configuration file is loaded too and allows for persistant storage. Each domain name defined in pagePaths will have a object once created on the 
 first request. The object will contain scripts which stores loaded scripts and storage for use as a sotrage object available. Once the script is completed a done event is emited and three objects are passed back to the main app 
 (req,res,page (app is global). And moves on to the template stage if applicable.
+
 	const eventEmitter = require('events');
 	module.exports = new eventEmitter();
 	function run (req,res,page,app) {
 		page.data.scriptData = "<p>Hello World!</p>"
 		module.exports.emit('done',req,res,page);
 	}
-	module.exports.run = run; A few basic are required in the script we need an exported function and an event emiter and. The exported function is the "run" function which the main app will execute this is done with 
+	module.exports.run = run; 
+
+A few basic are required in the script we need an exported function and an event emiter and. The exported function is the "run" function which the main app will execute this is done with 
 module.exports.run = run. The event emitter is created by requiring the "events" package and using module.exports to export a new event to the main app. The main app will listen for the 'done' event to execute the next action. 
 The done event is fired by "module.exports.emit('done',req,res,data)".
 

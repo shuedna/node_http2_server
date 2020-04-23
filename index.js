@@ -1,4 +1,6 @@
 #!./node
+//ver 1.0.7
+
 "use strict";
 const http2 = require('http2');
 const http = require('http');
@@ -65,9 +67,10 @@ function initSecureServer () {
 			if (!app[req.host]){
 				app[req.host] = { scripts : {}, storage : {} }
 			}
+			//console.log(req.host)
 			if (req.url == "/") {
 				req.url = app.sitePaths[req.host]["/"]
-				console.log(`It's a "/" so servering ${req.url}`)
+				//console.log(`It's a "/" so servering ${req.url}`)
 			}
 			if (req.method == "POST") {
 				//Handle posted Data
@@ -91,7 +94,7 @@ function initSecureServer () {
 	function send404 (req,res,err) {
 		//send 404 - file/resource not found.
 		if (err) { 
-			respond(req,res,"text",404,JSON.stringify(err))
+			respond(req,res,"text",404,`error: ${err}`)
 		}else{
 			respond(req,res,"text",404,"File/resource not found")
 		}
@@ -109,13 +112,14 @@ function initSecureServer () {
 	function pageReq(req,res,postData) {
 		getFile(`${app.sitePaths[req.host].pages}/${req.url}.json`,function (err,page){
 			if (err) {
+				//console.log(err)
 				send404(req,res)
 			}else{
 				getPageFiles(page)
 			}
 		})
 		function getPageFiles(page) {
-			//try { 
+			try { 
 				page = JSON.parse(page)
 				//console.log(page)
 				page.postData = postData
@@ -148,9 +152,10 @@ function initSecureServer () {
 						}
 					}
 				}
-			//}catch (err) {
-			//	send404(req,res,err)
-			//}
+			}catch (err) {
+                                consolelog(err)
+				send404(req,res,err)
+			}
 			function identifyFiles (obj,cond,callback) {
 	                        for(var file in obj) {
         	                        if ( cond == "*") {
@@ -322,4 +327,10 @@ function loadModule (path,host,callback) {
 	var file = "./" + app.sitePaths[host].scripts + "/" + path;
        	app[host].scripts[path] = require(file);
 	callback()
+}
+
+function consolelog (msg) {
+	if (app.config.logging) {
+		console.log(msg)
+	}
 }

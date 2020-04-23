@@ -1,7 +1,7 @@
 
 $('#sendMessage').on('click', function () {
 	var data = {}
-	data.from= 'mail@shueit.net'
+	data.from= 'danshue@dreamscape.com'
         data.to= 'daniel.shue@shueit.net'
         data.subject= 'LEAD from ShueIT site'
 	if ($("#messageName").val() == "") {
