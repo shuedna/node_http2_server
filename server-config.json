@@ -17,8 +17,8 @@
                                 "secure": false,
                                 "ignoreTLS": true,
                                 "auth": {
-                                        "user": "danshue@dreamscape.com",
-                                        "pass": "Joejoe###4"
+                                        "user": "#####.com",
+                                        "pass": "#####"
 				}
 			},
 			"testEmail": true
