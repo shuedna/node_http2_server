@@ -5,11 +5,14 @@
 			"https": 443
 		},
 		"ssl": {
-			"cert": "/etc/letsencrypt/live/shueit.net/fullchain.pem",
-			"key": "/etc/letsencrypt/live/shueit.net/privkey.pem"
+			"cert": "certs/fullchain.pem",
+			"key": "certs/privkey.pem"
 		},
-		"cache": true,
+		"cache": false,
 		"logging": true,
+		"contentPath": "./sites",
+		"indexFile": "index",
+
 		"mail": {
 			"transporter": {
                                 "host": "mail.dreamscape.com",
@@ -22,22 +25,6 @@
 				}
 			},
 			"testEmail": true
-		}		
-	},
-	"sitePaths": {
-		"*" : {
-			"/": "mainPage2",
-			"public": "public", 
-			"pages": "pageFiles",
-			"scripts": "pageFiles",
-			"templates": "templates"
-		},
-		"server.shueit.net" : {
-			"/" : "serverPage",
-			"public" : "public",
-			"pages" : "pageFiles",
-			"scripts" : "pageFiles",
-			"templates" : "templates"
 		}
 	}
 }

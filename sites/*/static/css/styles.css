@@ -57,6 +57,9 @@ body, .footer {
 .center {
 	text-align: center;
 }
+.smallImg {
+	width: 5%;
+}
 @media (min-width: 40.0rem) {
 	
 	#menubtn {

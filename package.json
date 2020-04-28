@@ -1,6 +1,6 @@
 {
-  "name": "webdev",
-  "version": "1.0.7",
+  "name": "node_http2_server",
+  "version": "1.01.1",
   "description": "node_http2_server ",
   "main": "index.js",
   "dependencies": {

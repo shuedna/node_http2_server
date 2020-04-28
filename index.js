@@ -23,15 +23,15 @@ var app = {};
 			app.storage = {};
 			console.log("Done")
 			loadCerts()
+			prefetchSites()
 			if (app.config.mail) {
 				loadMailer()
 			}
 		}catch (err) {
 			console.error(err)
-		}			
+		}
   	}
 )()
-
 
 function loadCerts() {
 	console.log ("loading Certs...")
@@ -43,8 +43,27 @@ function loadCerts() {
 		initSecureServer()
 	}catch (err) {
 		console.error(err)
+		.exit
 	}
 }
+
+function prefetchSites() {
+	console.log("Reading Sites Directory")
+	app.sitePaths = {};
+	fs.readdir(app.config.contentPath, function(err,items) {
+		items.forEach(function(item){
+			app.sitePaths[item] = {
+				"/": app.config.indexFile,
+				"public": app.config.contentPath + "/" + item + "/" + "static",
+				"pages": app.config.contentPath + "/" + item + "/" + "pages",
+				"scripts": app.config.contentPath + "/" + item + "/" + "scripts",
+				"templates": app.config.contentPath + "/" + item + "/" + "templates"
+			}
+
+		})
+		//console.log(app.sitePaths)
+	})
+} 
 
 function initSecureServer () {
 	console.log("loading Secure Server...")
@@ -56,13 +75,14 @@ function initSecureServer () {
 	app.server.on('error', (err) => console.error(err));
 	app.server.on('socketError', (err) => console.error(err));
 	app.server.on('request', (req,res) => {
-		//console.log(req)
+		//console.log(res)
 		var postData='';
 		req.on('data',function (chunk) {
 			postData=(postData += chunk)
 			//console.log('a chunk')
 		})
 		req.on('end', function () {
+			//if there object in sitePaths that matchs request host (www.xyz.com) use then  req.host  =  request host  else  req.host = *
 			req.host = app.sitePaths[(req.httpVersion === "2.0" ? req.headers[":authority"] : req.headers.host)] ? (req.httpVersion === "2.0" ? req.headers[":authority"] : req.headers.host) : "*"
 			if (!app[req.host]){
 				app[req.host] = { scripts : {}, storage : {} }
@@ -79,11 +99,11 @@ function initSecureServer () {
 					sendEmail(req,res,JSON.parse(postData))
 				}else{
 					pageReq(req,res,postData)
-				}		
+				}
 			}else if (mime.getType(req.url)) { //check if known file type
 				//serve static files
 				//console.log('to Serve static')
-				serveStatic(req,res)			
+				serveStatic(req,res)
 			}else{
 				//attempt to handle as a json page
 				//console.log("page request") 
@@ -187,7 +207,7 @@ function initSecureServer () {
 						fileData = fileData.toString('utf8')
 						object[key] = file.endsWith(".md") || file.endsWith(".markdown") ?  marked(fileData) : fileData
 						callback()
-					}	                                
+					}
                                 })
 			}
 			function nextAction () {
@@ -198,7 +218,7 @@ function initSecureServer () {
 					parseTemplates(req,res,page)
 				}else{
 					respond(req,res,mime.getType(".json"),200,JSON.stringify(page))
-				}       
+				}
                         }
 		}
 	}
@@ -213,13 +233,13 @@ function initSecureServer () {
                 				parseTemplates(req,res,page)
 					}else{
 						respond(req,res,mime.getType(".json"),200,JSON.stringify(page))
-					}	
+					}
         			})
 				app[req.host].scripts[page.script].run(req,res,page,app)
 			})
-		}	
+		}
 	}
-        function parseTemplates (req,res,page) {	
+        function parseTemplates (req,res,page) {
 		//console.log(page)
 		var data = page.data
                	for (var s in page.template) {
@@ -238,7 +258,7 @@ function initSecureServer () {
                        	if (err) {
 				var resp = {};
 				resp.sent = false
-				resp.err = err					
+				resp.err = err
 				respond(req,res,mime.getType(".json"),200,JSON.stringify(resp))
                         }else{
                        		//console.log ('%O',info)
@@ -279,7 +299,7 @@ function initSecureServer () {
 			console.log(err)
 		}
 	}
-	
+
 	app.server.listen(app.config.ports.https);
 	console.log(`Done, Server listening on ${app.config.ports.https}`)
 	initRedirectServer()
